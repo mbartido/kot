@@ -1,0 +1,20 @@
+{
+  "name": "kot-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2",
+    "react-scripts": "1.1.5",
+    "bcrypt": "^3.0.0",
+    "body-parser": "~1.18.2",
+    "express": "~4.16.1",
+    "mongoose": "~4.11.14"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test --env=jsdom",
+    "eject": "react-scripts eject"
+  }
+}

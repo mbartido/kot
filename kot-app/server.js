@@ -26,7 +26,7 @@ db.once('open', function() {
 });
 
 // Routing for application---------------------------------------------------
-var Player =  require('./app/models/player');           // get the model
+var Player =  require('./app/models/player');         // get the model
 var router = express.Router();                        // get instance of router
 // Request middleware
 router.use(function(req, res, next) {
@@ -45,20 +45,67 @@ router.route('/players')
 
   // create a user @ http://localhost:8080/api/users
   .post(function(req, res) {
-    var player = new Player();         // creates new instance of user
-    // Set initial schema
-    player.name = req.body.name;
-    player.character = req.body.character;
-    player.health = req.body.health;
-    player.points = req.body.points;
-    player.energy = req.body.energy;
-    player.roomID = req.body.roomID;
-    player.inGame = req.body.inGame;
+    const { body } = req;
+    const { password } = body;
+    let { email } = body
 
-    // Saving the player in DB
-    player.save(function(err) {
-      if (err) res.send(err);
-      res.json({ message: 'Player created!' });
+    if (!req.body.email) {
+      return res.send({
+        sucess: false,
+        message: 'Error: Email is blank.'
+      });
+    }
+    if (!req.body.password) {
+      return res.send({
+        success: false,
+        message: 'Error: Password is blank.'
+      });
+    }
+    email = email.toLowerCase();
+    email = email.trim();
+
+    // Verifying email doesn't exist and then saving
+    Player.find({
+      email: email
+    }, (err, previousUsers) => {
+      if (err) {
+        return res.send({
+          success: false,
+          message: 'Error: Server error.'
+        });
+      } else if (previousUsers.length > 0) {
+        return res.send({
+          sucess: false,
+          message: 'Error: Account already exists.'
+        });
+      }
+
+      // Saving player
+      const newPlayer = new Player();
+      // Creating user schema
+      newPlayer.email = email;
+      newPlayer.password = newPlayer.generateHash(password);
+      
+      // newPlayer.name = req.body.name;
+      // newPlayer.character = req.body.character;
+      // newPlayer.health = req.body.health;
+      // newPlayer.points = req.body.points;
+      // newPlayer.energy = req.body.energy;
+      // newPlayer.roomID = req.body.roomID;
+      // newPlayer.inGame = req.body.inGame;
+
+      newPlayer.save((err, user) => {
+        if (err) {
+          return res.send({
+            success: false,
+            message: 'Error: Server error.'
+          });
+        }
+        res.json({
+          success: true,
+          message: 'User signed up.'
+        });
+      });
     });
   })
 
